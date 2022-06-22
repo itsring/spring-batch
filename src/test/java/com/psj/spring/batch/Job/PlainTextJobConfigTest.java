@@ -38,7 +38,7 @@ public class PlainTextJobConfigTest {
     private ResultTextRepository resultTextRepository;
 
     @AfterEach
-    public  void tearDown(){
+    public  void tearDown(){//테스트 할때 데이터를 정리하는 메서드 이름을 보통 tearDown이라고 함.
         plainTextRepository.deleteAll();
         resultTextRepository.deleteAll();
     }
@@ -70,12 +70,12 @@ public class PlainTextJobConfigTest {
 
 
     }
-    @Test
+    
     public void givenPlainTexts(Integer count) throws Exception{
        //Given
         IntStream.range(0,count)
                 .forEach(
-                        num->plainTextRepository.save(new PlainText(null, "text"+num))
+                        num -> plainTextRepository.save(new PlainText(null, "text"+num))
                 );
        //When
 
