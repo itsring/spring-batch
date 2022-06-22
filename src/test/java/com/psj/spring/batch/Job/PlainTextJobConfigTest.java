@@ -70,17 +70,13 @@ public class PlainTextJobConfigTest {
 
 
     }
-    
+
     public void givenPlainTexts(Integer count) throws Exception{
        //Given
         IntStream.range(0,count)
                 .forEach(
                         num -> plainTextRepository.save(new PlainText(null, "text"+num))
                 );
-       //When
-
-       //Then
-
     }
 
 }

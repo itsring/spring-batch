@@ -33,10 +33,10 @@ public class PlainTextJobConfig {
     private  final ResultTextRepository resultTextRepository;
 
     @Bean("plainTextJob")
-    public Job plainTextJob(Step helloStep) {
+    public Job plainTextJob(Step plainTextStep) {
         return jobBuilderFactory.get("plainTextJob")
                 .incrementer(new RunIdIncrementer())
-                .start(helloStep)
+                .start(plainTextStep)
                 .build()
                 ;
     }
