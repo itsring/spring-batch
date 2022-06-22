@@ -1,7 +1,9 @@
 package com.psj.spring.batch.job;
 
 import com.psj.spring.batch.core.domain.PlainText;
+import com.psj.spring.batch.core.domain.ResultText;
 import com.psj.spring.batch.core.repository.PlainTextRepository;
+import com.psj.spring.batch.core.repository.ResultTextRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -28,6 +30,7 @@ public class PlainTextJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final PlainTextRepository plainTextRepository;
+    private  final ResultTextRepository resultTextRepository;
 
     @Bean("plainTextJob")
     public Job plainTextJob(Step helloStep) {
@@ -66,25 +69,14 @@ public class PlainTextJobConfig {
                 .build()
                 ;
     }
-//    @StepScope
-//    @Bean
-//    public RepositoryItemReader<PlainText> plainTextReader() {
-//        return new RepositoryItemReaderBuilder<PlainText>()
-//                .name("plainTextReader")
-//                .repository(plainTextRepository)
-//                .methodName("findBy")
-//                .pageSize(5)
-//                .arguments(List.of())
-//                .sorts(Collections.singletonMap("id", Sort.Direction.DESC))
-//                .build();
-//    }
+//
 
     @StepScope
     @Bean
     public ItemProcessor<PlainText, String> plainTextProcessor() {
-
+// ItemProcessor<프로세서 하기 전 타입 , 프로세서 한 후 타입>
         return item -> "processed" + item.getText();
-
+//          메서드가 하나라서 람다식을 이용
 //        return new ItemProcessor<PlainText, String>() {
 //            @Override
 //            public String process(PlainText item) throws Exception {
@@ -96,7 +88,8 @@ public class PlainTextJobConfig {
     @Bean
     public ItemWriter<String> plainTextWriter() {
         return items -> {
-            items.forEach(System.out::println); // 출력 명령
+//            items.forEach(System.out::println);
+            items.forEach(item -> resultTextRepository.save(new ResultText(null, item)));
             System.out.println("=== chunk is finished");
         };
     }

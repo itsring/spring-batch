@@ -1,7 +1,7 @@
 package com.psj.spring.batch.Job;
 
 import com.psj.spring.batch.BatchTestConfig;
-import com.psj.spring.batch.job.HiJobConfig;
+import com.psj.spring.batch.job.HelloJobConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {HiJobConfig.class, BatchTestConfig.class})
+@ContextConfiguration(classes = {HelloJobConfig.class, BatchTestConfig.class})
 public class HelloJobConfigTest {
 
     @Autowired
