@@ -28,7 +28,7 @@ import org.springframework.core.task.TaskExecutor;
 public class parallelStepJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-
+//  순서가 명확하게 알고싶을때, 동시에 실행 / 속도가 느릴수 있음
     @Bean
     public Job parallelJob(Flow splitFlow){
         return jobBuilderFactory.get("parallelJob")
