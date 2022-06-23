@@ -48,13 +48,12 @@ public class PlainTextJobConfigTest {
     public void success_givenNoPlainText() throws Exception{
         //Given
         //no plainText
+
         //When
         JobExecution execution = jobLauncherTestUtils.launchJob();
         //Then
         Assertions.assertEquals(execution.getExitStatus(), ExitStatus.COMPLETED);
         Assertions.assertEquals(resultTextRepository.count(),0);
-
-
 
     }
     @Test

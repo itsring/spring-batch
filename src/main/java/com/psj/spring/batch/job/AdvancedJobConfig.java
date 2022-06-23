@@ -3,8 +3,7 @@ package com.psj.spring.batch.job;
 import com.psj.spring.batch.job.validator.LocalDateParameterValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -27,13 +26,39 @@ public class AdvancedJobConfig {
     private final StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Job advancedJob(Step advancedStep){
+    public Job advancedJob(
+            JobExecutionListener jobExecutionListener,
+            Step advancedStep
+    ){
         return jobBuilderFactory.get("advancedJob")     // 잡 이름
                 .incrementer(new RunIdIncrementer()) // 자동 증가
-                .validator(new LocalDateParameterValidator("targetDate"))                            // parameter validate를 재활용을 하기 위해 job 하위에 validator패키지 생성 후 LocalDateParameterValidator class 생성
+                .validator(new LocalDateParameterValidator("targetDate"))  // parameter validate를 재활용을 하기 위해 job 하위에 validator패키지 생성 후 LocalDateParameterValidator class 생성
+                .listener(jobExecutionListener)     // 설정한 JobListener추가
                 .start(advancedStep)                                // 스텝
                 .build();
     }
+// Job의 listener : 잡이 실행되기 전, 후 상태를 확인 할 수 있음
+    @JobScope
+    @Bean
+    public JobExecutionListener jobExecutionListener(){
+        return new JobExecutionListener() {
+//            실행되기 전
+            @Override
+            public void beforeJob(JobExecution jobExecution) {
+                log.info("[JobExecutionListener#beforeJob] jobExecution is"+jobExecution.getStatus());
+            }
+//          실행 된 후
+            @Override
+            public void afterJob(JobExecution jobExecution) {
+//                job 실패시 처리
+                if(jobExecution.getStatus() == BatchStatus.FAILED){
+                    log.error("[JobExecutionListener#afterJob] jobExecution is FAILED !!! RECOVER ASAP");
+                }
+
+            }
+        };
+    }
+
 
 //  스텝 정의
     @JobScope
@@ -49,8 +74,11 @@ public class AdvancedJobConfig {
     public Tasklet advancedTasklet(@Value("#{jobParameters['targetDate']}") String targetDate){
         return ((contribution, chunkContext) -> {
             log.info("[AdvancedJobConfig] JobParameter - targetDate = "+targetDate);
+//            에러 발생을 위해 주석처리 함
             LocalDate executionDate = LocalDate.parse(targetDate);
             log.info("[AdvancedJobConfig] was excuted advancedTasklet");
+//            에러를 던짐
+//            throw new RuntimeException("ERROR!!!!!!");
             return RepeatStatus.FINISHED; //한번 실행 시 끝
         });
     }
