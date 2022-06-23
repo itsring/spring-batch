@@ -79,10 +79,12 @@ public class MultiThreadStepJobConfig {
                 .resource(new FileSystemResource("data/input.txt"))
                 .build();
     }
+//    1개의 chunk는 하나의 쓰레드에서 실행되는데 여러개의 쓰레드가 chunk를 실행하고 각기 다른 Thread가 각각 다른 chunk를 실행함
     @StepScope
     @Bean
     public ItemProcessor<AmountDto, AmountDto> amountFileItemProcessor(){
         return item-> {
+            System.out.println(item+"-   Thread ="+Thread.currentThread().getName());
             item.setAmount(item.getAmount()*100);;
             return item;
         };
@@ -106,7 +108,6 @@ public class MultiThreadStepJobConfig {
 
         String filePath = "data/output.txt";
         new File(filePath).createNewFile();
-
 
         return new FlatFileItemWriterBuilder<AmountDto>()
                 .name("amountFileItemWriter")
