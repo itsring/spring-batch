@@ -15,12 +15,18 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.adapter.ItemProcessorAdapter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
+import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -47,7 +53,8 @@ public class FlatFileJobConfig {
     public Step flatFileStep(
             FlatFileItemReader<PlayerDto> playerFileItemReader,
 //            PlayerSalaryService playerSalaryService,
-            ItemProcessorAdapter<PlayerDto, PlayerSalaryDto> itemProcessorAdapter
+            ItemProcessorAdapter<PlayerDto, PlayerSalaryDto> itemProcessorAdapter,
+            FlatFileItemWriter<PlayerSalaryDto> playerFileItemWriter
 //          ,ItemProcessor<PlayerDto, PlayerSalaryDto> playerSalaryItemProcessor
     ){
 //      PlayerDto -> PlayerSalaryDto 사이즈 = 5
@@ -67,12 +74,15 @@ public class FlatFileJobConfig {
 //                        }
 //                    }
                 )    // 비즈니스 로직 -> 플레이어 셀러리 계산 로직
-                .writer(new ItemWriter<PlayerSalaryDto>() {
-                    @Override
-                    public void write(List<? extends PlayerSalaryDto> items) throws Exception {
-                        items.forEach(System.out::println);
-                    }
-                })
+                .writer(
+                        playerFileItemWriter
+//                        new ItemWriter<PlayerSalaryDto>() {
+//                            @Override
+//                            public void write(List<? extends PlayerSalaryDto> items) throws Exception {
+//                                items.forEach(System.out::println);
+//                            }
+//                        }
+                )
                 .build();
     }
 
@@ -87,6 +97,47 @@ public class FlatFileJobConfig {
                 .resource(new FileSystemResource("player-list.txt")) //읽을 파일 위치
                 .build();
     }
+
+
+
+
+    @StepScope
+    @Bean
+    public FlatFileItemWriter<PlayerSalaryDto> playerFileItemWriter() throws IOException {
+
+//      lineAggregator를 만들기 위해서는 fieldExtracter 로 만들어야됨
+        BeanWrapperFieldExtractor<PlayerSalaryDto> fieldExtractor = new BeanWrapperFieldExtractor<>();
+//      네임즈에 스트링 배열로 설정 - 쓰려고 하는 변수명 설정 -> PlayerSalaryDto에서 쓸 이름 가져오기 (순서상관없음)
+        fieldExtractor.setNames(new String[]{"ID","firstName","lastName","salary"});
+        fieldExtractor.afterPropertiesSet();
+
+//      delimited 설정
+        DelimitedLineAggregator<PlayerSalaryDto> lineAggregator = new DelimitedLineAggregator<>();
+//      tap으로 설정
+        lineAggregator.setDelimiter("\t");
+        lineAggregator.setFieldExtractor(fieldExtractor);
+
+//      기존의 파일을 덮어쓴다는 조건
+        new File("player-salary-list.txt").createNewFile();
+        FileSystemResource resource = new FileSystemResource("player-salary-list.txt");
+
+        return new FlatFileItemWriterBuilder<PlayerSalaryDto>()
+                .name("playerFileItemWriter")
+                .resource(resource) // file을 쓸 리소스
+                .lineAggregator(lineAggregator) // 쓴 값들을 어떻게 조합을 할건지
+                .build();
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 //    adapter - batch-item에 있는 어뎁터 사용(jar 아님)
     @StepScope
