@@ -63,10 +63,34 @@ public class AdvancedJobConfig {
 //  스텝 정의
     @JobScope
     @Bean
-    public Step advancedStep(Tasklet advancedTasklet ){
+    public Step advancedStep(
+            StepExecutionListener stepExecutionListener,
+            Tasklet advancedTasklet
+    ){
         return stepBuilderFactory.get("advancedStep")   // 스템이름
                 .tasklet(advancedTasklet)               // tasklet 이름름
+                .listener(stepExecutionListener)
                 .build();
+    }
+
+    @StepScope
+    @Bean
+//     Step의 리스너 : Step이 실행되기 전, 후 상태를 확인 할 수 있음
+//    step의 상태를 확인하고 싶을 때 사용 / 잘 안씀 / 스텝 전 후에 구현하고 싶을 때 사용
+//    chunkListener , ItemReadListener, ItemProcessListener, ItemWriteListener, SkipListener , StepExecutionListener 등이 있음
+    public StepExecutionListener stepExecutionListener(){
+        return new StepExecutionListener() {
+            @Override
+            public void beforeStep(StepExecution stepExecution) {
+                log.info("[StepExecutionListener#beforeStep] stepExecution is"+stepExecution.getStatus());
+            }
+
+            @Override
+            public ExitStatus afterStep(StepExecution stepExecution) {
+                log.info("[StepExecutionListener#afterStep] stepExecution is"+stepExecution.getStatus());
+                return stepExecution.getExitStatus();
+            }
+        };
     }
     // tasklet 정의
     @StepScope
