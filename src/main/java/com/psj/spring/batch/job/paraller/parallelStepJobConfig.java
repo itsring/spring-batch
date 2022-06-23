@@ -90,7 +90,7 @@ public class parallelStepJobConfig {
                     return RepeatStatus.FINISHED;
                 })
                 .build();
-
     }
-
+//     병목현상이 없어야 Step을 원할하게 처리할 수 있음
+//    remote chunking = 원격 청킹 // 잘 안씀 (예제 없음)
 }
