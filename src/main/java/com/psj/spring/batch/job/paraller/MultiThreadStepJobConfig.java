@@ -21,6 +21,8 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,13 +57,15 @@ public class MultiThreadStepJobConfig {
     public Step multiThreadStep(
             FlatFileItemReader<AmountDto> fileItemReader,
             ItemProcessor<AmountDto, AmountDto> amountFileItemProcessor,
-            FlatFileItemWriter<AmountDto> dtoFlatFileItemWriter
+            FlatFileItemWriter<AmountDto> dtoFlatFileItemWriter,
+            TaskExecutor taskExecutor
     ){
         return stepBuilderFactory.get("multiThreadStep")
                 .<AmountDto, AmountDto>chunk(10)
                 .reader(fileItemReader)
                 .processor(amountFileItemProcessor)
                 .writer(dtoFlatFileItemWriter)
+                .taskExecutor(taskExecutor)
                 .build();
     }
 //step scope 정의
@@ -82,6 +86,12 @@ public class MultiThreadStepJobConfig {
             item.setAmount(item.getAmount()*100);;
             return item;
         };
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor(){
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("spring-batch-task-executor");
+        return  taskExecutor;
     }
 
     @Bean
