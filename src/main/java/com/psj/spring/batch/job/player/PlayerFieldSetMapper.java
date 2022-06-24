@@ -1,4 +1,4 @@
-package com.psj.spring.batch.player;
+package com.psj.spring.batch.job.player;
 
 import com.psj.spring.batch.dto.PlayerDto;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;

@@ -29,7 +29,7 @@ dependencies {
 	testImplementation 'org.springframework.batch:spring-batch-test'
 	runtimeOnly 'mysql:mysql-connector-java'
 	testRuntimeOnly 'com.h2database:h2'
-	testImplementation 'org.mockito:mockito-inline:3.8.0'
+	testImplementation 'org.mockito:mockito-inline:4.6.1'
 }
 
 tasks.named('test') {

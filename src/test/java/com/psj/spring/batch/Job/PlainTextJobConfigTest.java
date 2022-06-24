@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = {PlainTextJobConfig.class, BatchTestConfig.class})
 public class PlainTextJobConfigTest {
-
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
